@@ -6,6 +6,7 @@ require 'net/sftp'
 require 'ghaki/account/base'
 require 'ghaki/core_ext/file/with_temp'
 
+require 'ghaki/net_ssh/errors'
 require 'ghaki/net_ssh/ftp'
 require 'ghaki/net_ssh/logger'
 require 'ghaki/net_ssh/telnet'
@@ -26,7 +27,9 @@ module Ghaki
         hostbased
       }
 
+      ######################################################################
       protected
+      ######################################################################
 
       ######################################################################
       def self.raw_opts_log cur_opts, raw_opts
@@ -94,11 +97,10 @@ module Ghaki
         raw_opts = raw_opts_setup( cur_opts )
         raw_ssh = ::Net::SSH.start( acc.hostname, acc.username, raw_opts )
         cur_ssh = Ghaki::NetSSH::Shell.new( raw_ssh, cur_opts )
-        return cur_ssh unless block_given?
-        begin
-          yield cur_ssh
-        ensure
-          cur_ssh.close
+        if block_given?
+          begin yield cur_ssh ensure cur_ssh.close end
+        else
+          return cur_ssh
         end
       rescue ::Net::SSH::HostKeyMismatch
         $!.remember_host!
@@ -121,7 +123,7 @@ module Ghaki
         ftp_raw = @raw_ssh.sftp
         ftp_obj = Ghaki::NetSSH::FTP.new( ftp_raw, {
           :account => @account,
-          :logger => @logger,
+          :logger  => @logger,
           :log_ssh_output  => @should_log_output,
           :log_ssh_command => @should_log_command,
         })
@@ -134,7 +136,7 @@ module Ghaki
         tel_raw = ::Net::SSH::Telnet.new( 'Session' => @raw_ssh )
         tel_obj = Ghaki::NetSSH::Telnet.new( tel_raw, {
           :account => @account,
-          :logger => @logger,
+          :logger  => @logger,
           :log_ssh_output  => @should_log_output,
           :log_ssh_command => @should_log_command,
         })
@@ -177,10 +179,12 @@ module Ghaki
 
       ######################################################################
       def redirect rem_file, loc_file, &block
-        sftp.remove! rem_file
-        out = block.call
-        sftp.download! rem_file, loc_file
-        return out
+        sftp do |ftp|
+          ftp.remove! rem_file
+          out = block.call
+          ftp.download! rem_file, loc_file
+          out
+        end
       end
 
     end # class
