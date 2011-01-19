@@ -1,4 +1,5 @@
 ############################################################################
+require 'ghaki/logger/base'
 require 'ghaki/account/base'
 require 'ghaki/net_ssh/ftp'
 
@@ -7,63 +8,111 @@ module Ghaki module NetSSH module FTP_Testing
   describe FTP do
 
     ########################################################################
-    before(:all) do
-      @account = Ghaki::Account::Base.new \
-        :hostname => 'host',
-        :username => 'user',
-        :password => 'secret'
-      @mock_log = flexmock()
+    ACCOUNT = Ghaki::Account::Base.new \
+      :hostname => 'host',
+      :username => 'user',
+      :password => 'secret'
+
+    ########################################################################
+    def make_log
+      @logger = flexmock()
       flexmock( :safe, Ghaki::Logger::Base ) do |fm|
-        fm.should_receive(:new).and_return(@mock_log)
+        fm.should_receive(:new).and_return(@logger)
       end
-      @mock_log.should_ignore_missing
+      @logger.should_ignore_missing
+      @test_opts = {
+        :account  => ACCOUNT.dup,
+        :logger => @logger,
+      }
     end
 
     ########################################################################
-    context 'class object' do
-      subject { FTP }
-      it { should respond_to :start }
-    end
-
-    ########################################################################
-    context 'class methods' do
-      describe '#start' do
-        pending
-      end
-    end
-
-    ########################################################################
-    before(:each) do
-      @mock_ssh = flexmock()
+    def make_ssh_raw
+      @ssh_raw = flexmock('Net:SSH')
       flexmock( :safe, ::Net::SSH ) do |fm|
-        fm.should_receive(:start).and_return(@mock_ssh)
+        fm.should_receive(:start).and_return(@ssh_raw)
       end
-      @mock_ssh.should_receive(:close)
+      @ssh_raw.should_receive(:close)
+    end
 
-      @mock_ftp = flexmock()
+    ########################################################################
+    def make_ftp_raw
+      @ftp_raw = flexmock('Net::SFTP')
       flexmock( :safe, ::Net::SFTP ) do |fm|
-        fm.should_receive(:new).and_return(@mock_ftp)
+        fm.should_receive(:new).and_return(@ftp_raw)
       end
+      @ssh_raw.should_receive(:sftp).and_return(@ftp_raw)
+    end
+
+    ########################################################################
+    before(:all) do
+      make_log
+    end
+    before(:each) do
+      make_ssh_raw
+      make_ftp_raw
+    end
+
+    ########################################################################
+    context 'class' do
+      subject { FTP }
+
+      it { should respond_to :start }
+
+      describe '#start' do
+        it 'should yield ftp' do
+          FTP.start(@test_opts) do |sftp| 
+            sftp.should be_an_instance_of(FTP)
+          end
+        end
+        it 'should return ftp' do
+          sftp = FTP.start(@test_opts)
+          sftp.should be_an_instance_of(FTP)
+        end
+      end
+
     end
 
     ########################################################################
     context 'object' do
-      subject { FTP.start({ :account => @account }) }
-      it { should respond_to :remove! }
-      it { should respond_to :upload! }
-      it { should respond_to :download! }
-    end
 
-    ########################################################################
-    context 'object methods' do
+      before(:each) do
+        @ftp_gak = FTP.start(@test_opts)
+      end
+
+      #-------------------------------------------------------------------
+      subject { @ftp_gak }
+
+      #-------------------------------------------------------------------
+      it { should respond_to :remove! }
       describe '#remove!' do
-        pending
+        it 'should delegate remove' do
+          @ftp_raw.should_receive(:remove!).with('remote_file')
+          @ftp_gak.remove! 'remote_file'
+        end
       end
+
+      #-------------------------------------------------------------------
+      it { should respond_to :upload! }
       describe '#upload!' do
-        pending
+        it 'should delegate upload, rename, and remove' do
+          @ftp_raw.should_receive(:upload!).with('local_file',String)
+          @ftp_raw.should_receive(:rename!).with(String,'remote_file')
+          @ftp_raw.should_receive(:remove!).with(String)
+          @ftp_gak.upload! 'local_file', 'remote_file'
+        end
       end
+
+      #-------------------------------------------------------------------
+      it { should respond_to :download! }
       describe '#download!' do
-        pending
+        it 'should delegate download' do
+          flexmock( :safe, ::File ) do |fm|
+            fm.should_receive(:with_named_temp).and_yield('tmp_file')
+          end
+          @ftp_raw.should_receive(:download!).with('remote_file','tmp_file')
+          @ftp_gak.download! 'remote_file', 'local_file'
+        end
       end
     end
 

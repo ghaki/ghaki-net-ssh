@@ -130,10 +130,10 @@ module Ghaki
         out = block.call || ''
         return out unless @should_log_output
         if out == ''
-          logger.reindent( NO_OUTPUT )
+          logger.puts( NO_OUTPUT )
         else
           logger.liner
-          logger.reindent( out )
+          logger.puts( out )
           logger.liner
         end
         out

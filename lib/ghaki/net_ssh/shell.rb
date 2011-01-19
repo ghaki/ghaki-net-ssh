@@ -11,7 +11,6 @@ require 'ghaki/net_ssh/ftp'
 require 'ghaki/net_ssh/logger'
 require 'ghaki/net_ssh/telnet'
 
-
 ############################################################################
 module Ghaki
   module NetSSH
@@ -120,31 +119,29 @@ module Ghaki
 
       ######################################################################
       def sftp
-        ftp_raw = @raw_ssh.sftp
-        ftp_obj = Ghaki::NetSSH::FTP.new( ftp_raw, {
-          :account => @account,
+        ftp_obj = Ghaki::NetSSH::FTP.new( self, {
           :logger  => @logger,
           :log_ssh_output  => @should_log_output,
           :log_ssh_command => @should_log_command,
         })
-        return ftp_obj unless block_given?
-        yield ftp_obj
+        if block_given?
+          yield ftp_obj
+        else
+          return ftp_obj
+        end
       end
 
       ######################################################################
       def telnet
-        tel_raw = ::Net::SSH::Telnet.new( 'Session' => @raw_ssh )
-        tel_obj = Ghaki::NetSSH::Telnet.new( tel_raw, {
-          :account => @account,
-          :logger  => @logger,
-          :log_ssh_output  => @should_log_output,
-          :log_ssh_command => @should_log_command,
-        })
-        return tel_obj unless block_given?
-        begin
-          yield tel_obj
-        ensure
-          tel_obj.close
+        tel_obj = Ghaki::NetSSH::Telnet.new( self )
+        if block_given?
+          begin
+            yield tel_obj
+          ensure
+            tel_obj.close
+          end
+        else
+          return tel_obj
         end
       end
 
@@ -179,12 +176,10 @@ module Ghaki
 
       ######################################################################
       def redirect rem_file, loc_file, &block
-        sftp do |ftp|
-          ftp.remove! rem_file
-          out = block.call
-          ftp.download! rem_file, loc_file
-          out
-        end
+        sftp.remove! rem_file
+        out = block.call
+        sftp.download! rem_file, loc_file
+        out
       end
 
     end # class
