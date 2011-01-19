@@ -45,10 +45,8 @@ module Ghaki module NetSSH module FTP_Testing
     end
 
     ########################################################################
-    before(:all) do
-      make_log
-    end
     before(:each) do
+      make_log
       make_ssh_raw
       make_ftp_raw
     end

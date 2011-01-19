@@ -48,10 +48,8 @@ module Ghaki module NetSSH module TelnetTesting
     end
 
     ########################################################################
-    before(:all) do
-      make_log
-    end
     before(:each) do
+      make_log
       make_ssh_raw
       make_tel_raw
     end
