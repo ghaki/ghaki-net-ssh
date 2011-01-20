@@ -1,5 +1,6 @@
 ############################################################################
 require 'delegate'
+require 'forwardable'
 require 'net/ssh'
 require 'net/ssh/telnet'
 require 'ghaki/net_ssh/shell'
@@ -8,9 +9,14 @@ require 'ghaki/net_ssh/shell'
 module Ghaki
   module NetSSH
     class Telnet < DelegateClass(::Net::SSH::Telnet)
+      extend Forwardable
 
       ########################################################################
       attr_accessor :raw_telnet, :shell, :auto_close
+      def_delegators :@shell,
+        :log_command_on,  :log_output_on,  :log_all_on,
+        :log_command_off, :log_output_off, :log_all_off,
+        :log_exec!, :log_command!
 
       ########################################################################
       def self.start *args, &block
@@ -49,7 +55,7 @@ module Ghaki
 
       ########################################################################
       def exec! cmd
-        @shell.log_exec! 'TELNET', cmd do
+        log_exec!( 'TELNET', cmd ) do
           @raw_telnet.cmd( cmd )
         end
       end

@@ -81,6 +81,15 @@ module Ghaki module NetSSH module FTP_Testing
       #-------------------------------------------------------------------
       subject { @ftp_gak }
 
+      context 'logging delegates' do
+        [ :log_command_on,  :log_output_on,  :log_all_on,
+          :log_command_off, :log_output_off, :log_all_off,
+          :log_exec!, :log_command!,
+        ].each do |token|
+          it { should respond_to token }
+        end
+      end
+
       #-------------------------------------------------------------------
       it { should respond_to :remove! }
       describe '#remove!' do

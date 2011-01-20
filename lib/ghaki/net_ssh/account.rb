@@ -7,19 +7,20 @@ module Ghaki
   module NetSSH
     class Account < Ghaki::Account::Base
 
+      ######################################################################
       def start_shell opts={}, &block
-        Ghaki::NetSSH::Shell.start \
-          opts.merge( :account => self, &block )
+        Ghaki::NetSSH::Shell.start( opts.merge( :account => self ), &block )
       end
 
+      ######################################################################
       def start_ftp opts={}, &block
-        Ghaki::NetSSH::FTP.start \
-          opts.merge( :account => self, &block )
+        Ghaki::NetSSH::FTP.start( opts.merge( :account => self ), &block )
       end
 
+      ######################################################################
       def start_telnet opts={}, &block
-        Ghaki::NetSSH::Telnet.start \
-          opts.merge( :account => self, &block )
+        puts 'Account.start_telnet'
+        Ghaki::NetSSH::Telnet.start( opts.merge( :account => self ), &block )
       end
 
     end # class
