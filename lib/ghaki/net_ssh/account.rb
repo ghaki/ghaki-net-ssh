@@ -19,7 +19,6 @@ module Ghaki
 
       ######################################################################
       def start_telnet opts={}, &block
-        puts 'Account.start_telnet'
         Ghaki::NetSSH::Telnet.start( opts.merge( :account => self ), &block )
       end
 

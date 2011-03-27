@@ -119,11 +119,7 @@ module Ghaki
 
       ######################################################################
       def sftp
-        ftp_obj = Ghaki::NetSSH::FTP.new( self, {
-          :logger  => @logger,
-          :log_ssh_output  => @should_log_output,
-          :log_ssh_command => @should_log_command,
-        })
+        ftp_obj = Ghaki::NetSSH::FTP.new( self )
         if block_given?
           yield ftp_obj
         else
@@ -132,8 +128,8 @@ module Ghaki
       end
 
       ######################################################################
-      def telnet
-        tel_obj = Ghaki::NetSSH::Telnet.new( self )
+      def telnet opts={}
+        tel_obj = Ghaki::NetSSH::Telnet.new( self, opts )
         if block_given?
           begin
             yield tel_obj

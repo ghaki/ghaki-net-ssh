@@ -18,10 +18,22 @@ module Ghaki
         :log_command_off, :log_output_off, :log_all_off,
         :log_exec!, :log_command!
 
+      def self.args_to_tel_opts args
+        case args.length
+        when 2
+          return Hash.new
+        when 1, 3
+          return args.last[:telnet_options] || {}
+        else
+          raise ArgumentError, "Invalid Arguments Passed: (1..3) != #{args.length}"
+        end
+      end
+
       ########################################################################
       def self.start *args, &block
+        tel_opt = args_to_tel_opts( args )
         gak_ssh = Shell.start( *args )
-        gak_tel = Telnet.new( gak_ssh )
+        gak_tel = Telnet.new( gak_ssh, tel_opt )
         gak_tel.auto_close = true
         if block_given?
           begin
@@ -46,10 +58,12 @@ module Ghaki
       end
 
       ########################################################################
-      def initialize ssh, opts={}
+      def initialize ssh, in_opts={}
         @auto_close = false
         @shell = ssh
-        @raw_telnet = ::Net::SSH::Telnet.new( 'Session' => @shell.raw_ssh )
+        out_opts = in_opts.dup
+        out_opts['Session'] = @shell.raw_ssh
+        @raw_telnet = ::Net::SSH::Telnet.new(out_opts)
         super @raw_telnet
       end
 

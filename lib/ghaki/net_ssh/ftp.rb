@@ -40,7 +40,7 @@ module Ghaki
       end
 
       ######################################################################
-      def initialize ssh, opts={}
+      def initialize ssh
         @shell = ssh
         @raw_ftp = @shell.raw_ssh.sftp
         super(@raw_ftp)
