@@ -1,7 +1,9 @@
 ############################################################################
-require 'ghaki/logger/base'
 require 'ghaki/net_ssh/logger'
-require 'ghaki/account/base'
+
+require 'mocha_helper'
+require 'ghaki/net_ssh/common_helper'
+
 
 ############################################################################
 module Ghaki module NetSSH module LoggerTesting
@@ -13,26 +15,13 @@ module Ghaki module NetSSH module LoggerTesting
       attr_accessor :account
       def initialize opts={}
         setup_logger opts
-        @account = Ghaki::Account::Base.new \
-          :hostname => 'host'
+        @account = opts[:account]
       end
-    end
-
-    ########################################################################
-    def make_log
-      mod = Ghaki::Logger::Base.new
-      @logger = flexmock(mod.to_s)
-      flexmock( :safe, mod ) do |fm|
-        fm.should_receive(:new).and_return(@logger)
-      end
-      @test_opts = {
-        :logger => @logger,
-      }
     end
 
     ########################################################################
     before(:each) do
-      make_log
+      setup_common
     end
 
     ########################################################################
@@ -68,12 +57,12 @@ module Ghaki module NetSSH module LoggerTesting
       it { should respond_to :log_command! }
       describe '#log_command!' do
         it 'should log title, command, and host' do
-          @logger.should_receive(:puts).with('SSH host : who').once
+          @logger.expects(:puts).with('SSH host : who').once
           @subj.log_command! 'SSH', 'who'
         end
         it 'should not log when supressed' do
           @subj.should_log_command = false
-          @logger.should_receive(:puts).never
+          @logger.expects(:puts).never
           @subj.log_command! 'SSH', 'who'
         end
       end
@@ -82,29 +71,29 @@ module Ghaki module NetSSH module LoggerTesting
       it { should respond_to :log_exec! }
       describe '#log_exec!' do
         it 'should log title and output' do
-          @logger.should_receive(:puts).with('SSH host : who').once
-          @logger.should_receive(:puts).with('output').once
-          @logger.should_receive(:liner).twice
+          @logger.expects(:puts).with('SSH host : who').once
+          @logger.expects(:puts).with('output').once
+          @logger.expects(:liner).twice
           @subj.log_exec!('SSH', 'who') do 'output' end.should == 'output'
         end
         it 'should log only output when command is supressed' do
           @subj.should_log_command = false
-          @logger.should_receive(:puts).with('SSH host : who').never
-          @logger.should_receive(:puts).with('output').once
-          @logger.should_receive(:liner).twice
+          @logger.expects(:puts).with('SSH host : who').never
+          @logger.expects(:puts).with('output').once
+          @logger.expects(:liner).twice
           @subj.log_exec!('SSH', 'who') do 'output' end.should == 'output'
         end
         it 'should not log when both are supressed' do
           @subj.should_log_command = false
           @subj.should_log_output = false
-          @logger.should_receive(:puts).never
-          @logger.should_receive(:liner).never
+          @logger.expects(:puts).never
+          @logger.expects(:liner).never
           @subj.log_exec!('SSH', 'who') do 'output' end.should == 'output'
         end
         it 'should default for no output' do
           @subj.should_log_command = false
-          @logger.should_receive(:puts).with('** NO OUTPUT **').once
-          @logger.should_receive(:liner).never
+          @logger.expects(:puts).with('** NO OUTPUT **').once
+          @logger.expects(:liner).never
           @subj.log_exec!('SSH', 'who') do nil end.should == ''
         end
       end

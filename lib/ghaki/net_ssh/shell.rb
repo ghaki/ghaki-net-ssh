@@ -97,7 +97,7 @@ module Ghaki
         raw_ssh = ::Net::SSH.start( acc.hostname, acc.username, raw_opts )
         cur_ssh = Ghaki::NetSSH::Shell.new( raw_ssh, cur_opts )
         if block_given?
-          begin yield cur_ssh ensure cur_ssh.close end
+          begin yield cur_ssh ensure raw_ssh.close end
         else
           return cur_ssh
         end

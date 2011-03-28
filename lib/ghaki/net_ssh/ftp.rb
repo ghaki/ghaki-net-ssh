@@ -58,15 +58,13 @@ module Ghaki
 
       ######################################################################
       def upload! loc_file, rem_file
-        tmp_file = ::File.dirname(rem_file) +
-          ::File::Separator + '_tmp_' + $$.to_s + '.' +
-          ::File.basename(rem_file)
+        tmp_file = ::File.join( ::File.dirname(rem_file),
+          '_tmp_' + $$.to_s + '.' + ::File.basename(rem_file) )
         log_command! 'SFTP', "upload #{loc_file}, #{tmp_file}"
         @raw_ftp.upload! loc_file, tmp_file
         log_command! 'SFTP', "rename #{tmp_file}, #{rem_file}"
         @raw_ftp.rename! tmp_file, rem_file
       ensure
-        log_command! 'SFTP', "remove #{tmp_file}"
         self.remove! tmp_file
       end
 

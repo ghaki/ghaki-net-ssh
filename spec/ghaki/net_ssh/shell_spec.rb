@@ -1,187 +1,78 @@
 ############################################################################
-require 'ghaki/account/base'
 require 'ghaki/net_ssh/shell'
 require 'ghaki/matcher/rx_pairs'
+
+require 'mocha_helper'
+require 'ghaki/net_ssh/common_helper'
 
 ############################################################################
 module Ghaki module NetSSH module ShellTesting
   describe Shell do
 
-    ########################################################################
-    HOST = 'host'
-    USER = 'user'
-    PASS = 'secret'
-    ACCOUNT = Ghaki::Account::Base.new \
-        :hostname => HOST,
-        :username => USER,
-        :password => PASS
-
-    ########################################################################
-    def make_log
-      @logger = flexmock('Ghaki::Logger::Base')
-      flexmock( :safe, Ghaki::Logger::Base ) do |f|
-        f.should_receive(:new).
-          and_return(@logger)
-      end
-      @logger.should_ignore_missing
-      @test_ssh_opts = {
-        :account => ACCOUNT,
-        :logger => @logger,
-      }
-    end
-
-    ########################################################################
-    def make_ssh_raw
-      @ssh_raw = flexmock('Net:SSH')
-      flexmock( :safe, ::Net::SSH ) do |f|
-        f.should_receive(:start).
-          and_return(@ssh_raw)
-      end
-      @ssh_raw.should_receive(:close)
-    end
-
-    ########################################################################
-    def make_ssh_gak
-      @ssh_gak = Shell.start(@test_ssh_opts)
-    end
-
-    ########################################################################
-    def make_tel_raw
-      @tel_raw = flexmock('Net:SSH::Telnet')
-      flexmock( :safe, ::Net::SSH::Telnet ) do |fm|
-        fm.should_receive(:new).and_return(@tel_raw)
-      end
-      @tel_raw.should_receive(:close)
-    end
-
-    ########################################################################
-    def make_ftp
-      @ssh_raw.should_receive(:sftp).and_return(flexmock('Net::SFTP'))
-      @ftp_gak = flexmock('Ghaki::NetSSH::FTP')
-      flexmock( :safe, Ghaki::NetSSH::FTP ) do |fm|
-        fm.should_receive(:new).and_return(@ftp_gak)
-      end
-    end
-
-    ########################################################################
     before(:each) do
-      make_log
-      make_ssh_raw
+      setup_common
     end
 
     ########################################################################
     context 'class' do
       subject { Shell }
       it { should respond_to :start }
+
       describe '#start' do
+
         it 'should return ssh' do
-          ssh = Shell.start(@test_ssh_opts)
-          ssh.should be_an_instance_of(Shell)
+          subject.start(@test_opts).should be_an_instance_of(Shell)
         end
+
         it 'should yield ssh' do
-          Shell.start(@test_ssh_opts) do |ssh|
+          @ssh_raw.expects(:close).once
+          subject.start(@test_opts) do |ssh|
             ssh.should be_an_instance_of(Shell)
           end
         end
+
       end
     end
 
-    ########################################################################
-    context 'object' do
+   ########################################################################
+   context 'object' do
+
       before(:each) do
-        make_ssh_gak
+        @ssh_gak = Shell.start(@test_opts)
       end
       subject { @ssh_gak }
 
-      #---------------------------------------------------------------------
+      it { should respond_to :discover }
+      it { should respond_to :download! }
       it { should respond_to :exec! }
+      it { should respond_to :redirect }
+      it { should respond_to :remove! }
+      it { should respond_to :sftp }
+      it { should respond_to :telnet }
+      it { should respond_to :upload! }
+
+      #---------------------------------------------------------------------
       describe '#exec!' do
         it 'should delegate' do
-          @ssh_raw.should_receive(:exec!).with('who').and_return('nobody').ordered
+          @ssh_raw.expects(:exec!).with('who').returns('nobody')
           @ssh_gak.exec! 'who'
         end
       end
       
       #---------------------------------------------------------------------
-      it { should respond_to :telnet }
       describe '#telnet' do
-        before(:each) do
-          make_tel_raw
-        end
         it 'should create telnet' do
-          @ssh_gak.telnet.should be_an_instance_of(Ghaki::NetSSH::Telnet)
+          tel = @ssh_gak.telnet
+          tel.should be_an_instance_of(Telnet)
         end
         it 'should yield telnet' do
+          @tel_raw.expects(:close).once
           @ssh_gak.telnet do |tel|
-            tel.should be_an_instance_of(Ghaki::NetSSH::Telnet)
+            tel.should be_an_instance_of(Telnet)
           end
         end
       end
 
-      #-----------------------------------------------------------------
-      it { should respond_to :sftp }
-      describe '#sftp' do
-        before(:each) do
-          @ssh_raw.should_receive(:sftp).and_return( flexmock('Net::SFTP') )
-        end
-        it 'should create ftp' do
-          @ssh_gak.sftp.should be_an_instance_of(Ghaki::NetSSH::FTP)
-        end
-        it 'should yield ftp' do
-          @ssh_gak.sftp do |ftp|
-            ftp.should be_an_instance_of(Ghaki::NetSSH::FTP)
-          end
-        end
-      end
-
-      ######################################################################
-      context 'ftp helpers' do
-        before(:each) do make_ftp end
-        
-        #-----------------------------------------------------------------
-        it { should respond_to :remove! }
-        describe '#remove!' do
-          it 'should delegate to ftp' do
-            @ftp_gak.should_receive(:remove!).with('remote_file')
-            @ssh_gak.remove! 'remote_file'
-          end
-        end
-
-        #-----------------------------------------------------------------
-        it { should respond_to :upload! }
-        describe '#upload!' do
-          it 'should delegate to ftp' do
-            @ftp_gak.should_receive(:upload!).with('local_file','remote_file')
-            @ssh_gak.upload! 'local_file', 'remote_file'
-          end
-        end
-
-        #-------------------------------------------------------------------
-        it { should respond_to :download! }
-        describe '#download!' do
-          it 'should delegate to ftp' do
-            @ftp_gak.should_receive(:download!).with('remote_file','local_file')
-            @ssh_gak.download! 'remote_file', 'local_file'
-          end
-        end
-
-        #-------------------------------------------------------------------
-        it { should respond_to :redirect }
-        describe '#redirect' do
-          it 'should delegate to ftp' do
-            @ftp_gak.should_receive(:remove!).with('remote_file')
-            @ftp_gak.should_receive(:download!).with('remote_file','local_file')
-            out = @ssh_gak.redirect 'remote_file', 'local_file' do
-              'output'
-            end
-            out.should == 'output'
-          end
-        end
-
-      end
-
-      #---------------------------------------------------------------------
-      it { should respond_to :discover }
       describe '#discover' do
         before(:each) do
           @matcher = Ghaki::Matcher::RxPairs.new({
@@ -189,18 +80,79 @@ module Ghaki module NetSSH module ShellTesting
           })
         end
         it 'should match if found' do
-          @ssh_raw.should_receive(:exec!).with('who').and_return('foo')
+          @ssh_raw.expects(:exec!).with('who').returns('foo')
           @ssh_gak.discover( 'who', @matcher ).should == :foo
         end
         it 'should reject if not found' do
           lambda do
-            @ssh_raw.should_receive(:exec!).with('who').and_return('bar')
+            @ssh_raw.expects(:exec!).with('who').returns('bar')
             @ssh_gak.discover( 'who', @matcher )
           end.should raise_error(RemoteCommandError)
         end
       end
 
-    end
+      #-----------------------------------------------------------------
+      describe '#sftp' do
+        it 'should create ftp' do
+          ftp = @ssh_gak.sftp
+          ftp.should be_an_instance_of(FTP)
+        end
+        it 'should yield ftp' do
+          @ssh_gak.sftp do |ftp|
+            ftp.should be_an_instance_of(FTP)
+          end
+        end
+      end
+
+      ####################################################################
+      describe 'sftp helpers' do
+
+        before(:each) do
+          @ftp_gak = mock('Ghaki::NetSSH::FTP')
+          FTP.stubs( :new => @ftp_gak )
+        end
+
+
+        #-----------------------------------------------------------------
+        describe '#remove!' do
+          it 'should delegate to ftp' do
+            trg = 'remote_file'
+            @ftp_gak.expects(:remove!).with(trg)
+            @ssh_gak.remove! trg
+          end
+        end
+
+        #-----------------------------------------------------------------
+        describe '#upload!' do
+          it 'should delegate to ftp' do
+            src,dst = 'local_file', 'remote_file'
+            @ftp_gak.expects(:upload!).with(src,dst)
+            @ssh_gak.upload! src, dst
+          end
+        end
+
+        #-------------------------------------------------------------------
+        describe '#download!' do
+          it 'should delegate to ftp' do
+            src,dst = 'remote_file', 'local_file'
+            @ftp_gak.expects(:download!).with(src,dst)
+            @ssh_gak.download! src, dst
+          end
+        end
+
+        #-------------------------------------------------------------------
+        describe '#redirect' do
+          it 'should delegate to ftp' do
+            src,dst = 'remote_file', 'local_file'
+            put = 'output'
+            @ftp_gak.expects(:remove!).with(src)
+            @ftp_gak.expects(:download!).with(src,dst)
+            @ssh_gak.redirect(src,dst) do put end.should == put
+          end
+        end
+      end
+
+   end
 
   end
 end end end
