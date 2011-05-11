@@ -36,10 +36,10 @@ module Ghaki
           if cur_opts[:logger].nil?
             # doesn't handle nil correctly
             raw_opts.delete(:logger)
-          else
+          elsif cur_opts[:logger].level < ::Logger::WARN
             # anything over WARN is insane
             raw_opts[:logger] = cur_opts[:logger].dup
-            cur_opts[:logger].level = ::Logger::WARN
+            raw_opts[:logger].level = ::Logger::WARN 
           end
         end
         raw_opts
