@@ -1,5 +1,6 @@
 export GK_PROJECT_IDEPS=( \
   "$(pwd)/../ghaki-account/lib" \
+  "$(pwd)/../ghaki-app/lib" \
   "$(pwd)/../ghaki-core/lib" \
   "$(pwd)/../ghaki-logger/lib" \
   )

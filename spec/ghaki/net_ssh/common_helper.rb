@@ -2,7 +2,8 @@ require 'ghaki/account/base'
 
 def setup_common
 
-  @logger  = stub_everything('Ghaki::Logger::Base')
+  @logger = stub_everything('Ghaki::Logger::Base')
+  @logger.stubs(:level).returns(2)
 
   @user_opts = {
     :username => 'user',
