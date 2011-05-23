@@ -29,6 +29,7 @@ describe Shell do
       it 'handles password retries' do
         @account.passwords = ['invalid','secret']
         ::Net::SSH.expects(:start).raises(::Net::SSH::AuthenticationFailed).then.returns(@ssh_raw)
+        @logger.expects(:warn).with(regexp_matches(%r{failed\spassword\sattempt}))
         subject.start(@test_opts).should be_an_instance_of(Shell)
         @account.failed_passwords?.should be_true
       end

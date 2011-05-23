@@ -108,6 +108,9 @@ module Ghaki
         rescue Net::SSH::AuthenticationFailed
           if acc.retry_password?
             acc.fail_password
+            unless cur_opts[:logger].nil?
+              cur_opts[:logger].warn "failed password attempt for: #{acc}"
+            end
             retry
           else
             raise
