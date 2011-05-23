@@ -94,19 +94,27 @@ module Ghaki
         cur_opts = args_to_opts( args )
         acc = args_to_account( args, cur_opts )
         raw_opts = raw_opts_setup( cur_opts )
-        raw_ssh = ::Net::SSH.start( acc.hostname, acc.username, raw_opts )
-        cur_ssh = Ghaki::NetSSH::Shell.new( raw_ssh, cur_opts )
-        if block_given?
-          begin yield cur_ssh ensure raw_ssh.close end
-        else
-          return cur_ssh
+        begin
+          raw_ssh = ::Net::SSH.start( acc.hostname, acc.username, raw_opts )
+          cur_ssh = Ghaki::NetSSH::Shell.new( raw_ssh, cur_opts )
+          if block_given?
+            begin yield cur_ssh ensure raw_ssh.close end
+          else
+            return cur_ssh
+          end
+        rescue ::Net::SSH::HostKeyMismatch
+          $!.remember_host!
+          retry
+        rescue Net::SSH::AuthenticationFailed
+          if acc.retry_password?
+            acc.fail_password
+            retry
+          else
+            raise
+          end
         end
-      rescue ::Net::SSH::HostKeyMismatch
-        $!.remember_host!
-        retry
       end
 
-      ######################################################################
       attr_accessor :raw_ssh, :account
 
       ######################################################################
