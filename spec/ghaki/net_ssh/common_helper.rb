@@ -16,7 +16,7 @@ def setup_common
     :logger   => @logger,
   }
 
-  @ssh_raw = mock('Net:SSH')
+  @ssh_raw = mock('Net::SSH')
   @tel_raw = mock('Net::Telnet')
   @ftp_raw = mock('Net::SFTP')
   @ssh_raw.stubs( :sftp => @ftp_raw )
