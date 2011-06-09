@@ -79,7 +79,7 @@ module Ghaki
           acc = Ghaki::Account::Base.new \
             :hostname => args.shift,
             :username => args.shift
-          acc.password = Ghaki::Account::Password.from_opts(cur_opts)
+          acc.password = Ghaki::Account::Password.parse_opts(cur_opts)
         end
         raise ArgumentError, 'Missing Hostname' if acc.hostname.nil?
         raise ArgumentError, 'Missing Username' if acc.username.nil?
