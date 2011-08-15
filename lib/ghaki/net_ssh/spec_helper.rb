@@ -39,9 +39,9 @@ module SpecHelper
   end
 
   def setup_safe_gak_net_ssh opts={}
+    return unless defined?(@ssh_obj) and ! @ssh_obj.nil?
     setup_safe_logger
     stub_gak_net_ssh
-    return unless defined?(@ssh_obj) and ! @ssh_obj.nil?
     opts[:hostname] ||= 'host'
     opts[:username] ||= 'user'
     opts[:password] ||= 'secret'
