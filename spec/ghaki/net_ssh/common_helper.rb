@@ -1,27 +1,22 @@
 require 'ghaki/account/base'
+require 'ghaki/net_ssh/spec_helper'
 
-def setup_common
+module CommonHelper
+  include Ghaki::NetSSH::SpecHelper
 
-  @logger = stub_everything('Ghaki::Logger::Base')
-  @logger.stubs(:level).returns(2)
-
-  @user_opts = {
-    :username => 'user',
-    :hostname => 'host',
-    :password => 'secret',
-  }
-  @account = Ghaki::Account::Base.new @user_opts
-  @test_opts = {
-    :account  => @account,
-    :logger   => @logger,
-  }
-
-  @ssh_raw = mock('Net::SSH')
-  @tel_raw = mock('Net::Telnet')
-  @ftp_raw = mock('Net::SFTP')
-  @ssh_raw.stubs( :sftp => @ftp_raw )
-
-  ::Net::SSH.stubs( :start => @ssh_raw )
-  ::Net::SSH::Telnet.stubs( :new => @tel_raw )
+  def setup_common
+    setup_safe_logger
+    stub_raw_net_ssh
+    @user_opts = {
+      :username => 'user',
+      :hostname => 'host',
+      :password => 'secret',
+    }
+    @account = Ghaki::Account::Base.new @user_opts
+    @test_opts = {
+      :account  => @account,
+      :logger   => @logger,
+    }
+  end
 
 end

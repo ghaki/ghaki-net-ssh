@@ -4,6 +4,7 @@ require 'ghaki/net_ssh/account'
 
 module Ghaki module NetSSH module Account_Testing
 describe Account do
+  include CommonHelper
     
   before(:each) do
     setup_common

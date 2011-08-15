@@ -1,13 +1,12 @@
-############################################################################
+require 'mocha_helper'
+
 require 'ghaki/net_ssh/shell'
 require 'ghaki/matcher/rx_pairs'
-
-require 'mocha_helper'
 require 'ghaki/net_ssh/common_helper'
 
-############################################################################
-module Ghaki module NetSSH module ShellTesting
+module Ghaki module NetSSH module Shell_Testing
 describe Shell do
+  include CommonHelper
 
   before(:each) do
     setup_common
@@ -43,7 +42,6 @@ describe Shell do
     end
     subject { @ssh_gak }
 
-    #---------------------------------------------------------------------
     describe '#exec!' do
       it 'delegates to ssh' do
         @ssh_raw.expects(:exec!).with('who').returns('nobody')
@@ -51,7 +49,6 @@ describe Shell do
       end
     end
     
-    #---------------------------------------------------------------------
     describe '#telnet' do
       it 'creates telnet' do
         tel = @ssh_gak.telnet
@@ -83,7 +80,6 @@ describe Shell do
       end
     end
 
-    #-----------------------------------------------------------------
     describe '#sftp' do
       it 'creates ftp' do
         ftp = @ssh_gak.sftp
@@ -104,8 +100,6 @@ describe Shell do
         FTP.stubs( :new => @ftp_gak )
       end
 
-
-      #-----------------------------------------------------------------
       describe '#remove!' do
         it 'delegates to ftp' do
           trg = 'remote_file'
@@ -114,7 +108,6 @@ describe Shell do
         end
       end
 
-      #-----------------------------------------------------------------
       describe '#upload!' do
         it 'delegates to ftp' do
           src,dst = 'local_file', 'remote_file'
@@ -123,7 +116,6 @@ describe Shell do
         end
       end
 
-      #-------------------------------------------------------------------
       describe '#download!' do
         it 'delegates to ftp' do
           src,dst = 'remote_file', 'local_file'
@@ -132,7 +124,6 @@ describe Shell do
         end
       end
 
-      #-------------------------------------------------------------------
       describe '#redirect' do
         it 'delegates to ftp' do
           src,dst = 'remote_file', 'local_file'
