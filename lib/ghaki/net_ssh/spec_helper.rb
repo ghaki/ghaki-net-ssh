@@ -39,17 +39,20 @@ module SpecHelper
   end
 
   def setup_safe_gak_net_ssh opts={}
-    return unless defined?(@ssh_obj) and ! @ssh_obj.nil?
+    return unless @ssh_gak.nil?
     setup_safe_logger
     stub_gak_net_ssh
     opts[:hostname] ||= 'host'
     opts[:username] ||= 'user'
     opts[:password] ||= 'secret'
     opts[:logger] ||= @logger
-    @ssh_obj = Ghaki::NetSSH::Shell.start(opts)
-    @ssh_obj.stubs({
+    @ssh_gak = Ghaki::NetSSH::Shell.start(opts)
+    @ssh_gak.stubs({
       :sftp   => @ftp_gak,
       :telnet => @tel_gak,
+    })
+    Ghaki::NetSSH::Shell.stubs({
+      :new => @ssh_gak,
     })
   end
 
