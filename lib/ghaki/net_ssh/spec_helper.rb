@@ -1,6 +1,9 @@
 require 'ghaki/net_ssh/shell'
 
-module NetShellHelper
+module Ghaki  #:nodoc:
+module NetSSH #:nodoc:
+
+module SpecHelper
 
   def setup_netssh
     @tel_raw = stub_everything('Net::Telnet')
@@ -41,3 +44,4 @@ module NetShellHelper
   end
 
 end
+end end
