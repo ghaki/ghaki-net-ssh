@@ -53,5 +53,10 @@ module SpecHelper
     })
   end
 
+  def reset_safe_gak_net_ssh opts={}
+    clear_safe_gak_net_ssh
+    setup_safe_gak_net_ssh opts
+  end
+
 end
 end end
