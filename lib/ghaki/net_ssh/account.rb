@@ -1,28 +1,38 @@
-############################################################################
 require 'ghaki/account/base'
 require 'ghaki/net_ssh/shell'
 
-############################################################################
-module Ghaki
-  module NetSSH
-    class Account < Ghaki::Account::Base
+module Ghaki  #:nodoc:
+module NetSSH #:nodoc:
 
-      ######################################################################
-      def start_shell opts={}, &block
-        Ghaki::NetSSH::Shell.start( opts.merge( :account => self ), &block )
-      end
+class Account < Ghaki::Account::Base
+  attr_accessor :logger
 
-      ######################################################################
-      def start_ftp opts={}, &block
-        Ghaki::NetSSH::FTP.start( opts.merge( :account => self ), &block )
-      end
+  def initialize opts={}; super opts
+    @logger = opts[:logger]
+  end
 
-      ######################################################################
-      def start_telnet opts={}, &block
-        Ghaki::NetSSH::Telnet.start( opts.merge( :account => self ), &block )
-      end
+  def start_shell opts={}, &block
+    Ghaki::NetSSH::Shell.start \
+      setup_shell_opts(opts), &block
+  end
 
-    end # class
-  end # namespace
-end # package
-############################################################################
+  def start_ftp opts={}, &block
+    Ghaki::NetSSH::FTP.start \
+      setup_shell_opts(opts), &block
+  end
+
+  def start_telnet opts={}, &block
+    Ghaki::NetSSH::Telnet.start \
+      setup_shell_opts(opts), &block
+  end
+
+  protected
+
+  def setup_shell_opts opts
+    opts[:account] = self
+    opts[:logger] ||= @logger unless @logger.nil?
+    opts
+  end
+
+end
+end end
