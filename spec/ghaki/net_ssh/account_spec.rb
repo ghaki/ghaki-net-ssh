@@ -1,4 +1,3 @@
-require 'mocha_helper'
 require 'ghaki/net_ssh/common_helper'
 require 'ghaki/net_ssh/account'
 

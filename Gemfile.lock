@@ -1,0 +1,76 @@
+GIT
+  remote: ghaki@ghaki.com:/home/ghaki/git-archive/ghaki-account.git
+  revision: 59d067d3de6a9756bcfbb9e1b6275ab0c71333ab
+  specs:
+    ghaki-account (1.1.4)
+      highline (>= 1.5.1)
+
+GIT
+  remote: ghaki@ghaki.com:/home/ghaki/git-archive/ghaki-app.git
+  revision: 8cb3b49b8539f7441be625713668b24ff4a7962d
+  specs:
+    ghaki-app (1.1.3)
+
+GIT
+  remote: ghaki@ghaki.com:/home/ghaki/git-archive/ghaki-core.git
+  revision: de42541817221056f619ccbd5c23e7b9e2a53351
+  specs:
+    ghaki-core (1.1.4)
+      facets (>= 2.9.1)
+
+GIT
+  remote: ghaki@ghaki.com:/home/ghaki/git-archive/ghaki-logger.git
+  revision: e6ef3811cb6e8a2822baf3619bded61fb3b0e8ed
+  specs:
+    ghaki-logger (1.1.6)
+      ghaki-app (>= 1.1.2)
+
+PATH
+  remote: .
+  specs:
+    ghaki-net-ssh (1.1.5)
+      ghaki-account (>= 1.1.3)
+      ghaki-app (>= 1.1.2)
+      ghaki-core (>= 1.1.3)
+      ghaki-logger (>= 1.1.3)
+      highline (>= 1.6.1)
+      net-sftp (>= 2.0.5)
+      net-ssh (>= 2.1.4)
+      net-ssh-telnet (>= 0.0.2)
+
+GEM
+  remote: http://rubygems.org/
+  specs:
+    diff-lcs (1.1.3)
+    facets (2.9.2)
+    highline (1.6.2)
+    metaclass (0.0.1)
+    mocha (0.10.0)
+      metaclass (~> 0.0.1)
+    net-sftp (2.0.5)
+      net-ssh (>= 2.0.9)
+    net-ssh (2.2.1)
+    net-ssh-telnet (0.0.2)
+      net-ssh (>= 2.0.1)
+    rdoc (3.9.4)
+    rspec (2.6.0)
+      rspec-core (~> 2.6.0)
+      rspec-expectations (~> 2.6.0)
+      rspec-mocks (~> 2.6.0)
+    rspec-core (2.6.4)
+    rspec-expectations (2.6.0)
+      diff-lcs (~> 1.1.2)
+    rspec-mocks (2.6.0)
+
+PLATFORMS
+  ruby
+
+DEPENDENCIES
+  ghaki-account!
+  ghaki-app!
+  ghaki-core!
+  ghaki-logger!
+  ghaki-net-ssh!
+  mocha (>= 0.9.12)
+  rdoc (>= 3.9.4)
+  rspec (>= 2.4.0)

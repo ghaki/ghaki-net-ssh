@@ -1,8 +1,6 @@
-require 'mocha_helper'
-
 require 'ghaki/net_ssh/shell'
-require 'ghaki/matcher/rx_pairs'
 require 'ghaki/net_ssh/common_helper'
+require 'ghaki/matcher/rx_pairs'
 
 module Ghaki module NetSSH module Shell_Testing
 describe Shell do

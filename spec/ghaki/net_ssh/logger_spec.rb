@@ -1,6 +1,4 @@
 require 'ghaki/net_ssh/logger'
-
-require 'mocha_helper'
 require 'ghaki/net_ssh/common_helper'
 
 module Ghaki module NetSSH module Logger_Testing

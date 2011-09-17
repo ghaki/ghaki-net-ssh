@@ -1,5 +1,3 @@
-require 'mocha_helper'
-
 require 'ghaki/net_ssh/telnet'
 require 'ghaki/net_ssh/common_helper'
 

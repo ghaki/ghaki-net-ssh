@@ -1,7 +1,4 @@
-############################################################################
 require 'ghaki/net_ssh/ftp'
-
-require 'mocha_helper'
 require 'ghaki/net_ssh/common_helper'
 
 module Ghaki module NetSSH module FTP_Testing
