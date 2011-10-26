@@ -1,3 +1,4 @@
+require 'bundler/setup'
 require 'mocha'
 
 RSpec.configure do |cfg|
