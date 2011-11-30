@@ -1,7 +1,7 @@
 Gem::Specification.new do |s|
 
   s.name        = 'ghaki-net-ssh'
-  s.summary     = 'Secure Shell helper'
+  s.summary     = 'Secure Shell helpers'
   s.description = 'Ghaki Net SSH is a collection of extensions for the Net SSH gem library.'
 
   s.version  = IO.read(File.expand_path('VERSION')).chomp
