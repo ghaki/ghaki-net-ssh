@@ -1,6 +1,6 @@
 require 'ghaki/net_ssh/shell'
 require 'ghaki/net_ssh/common_helper'
-require 'ghaki/matcher/rx_pairs'
+require 'ghaki/match/parser/base'
 
 module Ghaki module NetSSH module Shell_Testing
 describe Shell do
@@ -62,7 +62,7 @@ describe Shell do
 
     describe '#discover' do
       before(:each) do
-        @matcher = Ghaki::Matcher::RxPairs.new({
+        @matcher = Ghaki::Match::Parser::Base.new({
           %r{foo}o => :foo,
         })
       end

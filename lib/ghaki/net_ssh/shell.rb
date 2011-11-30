@@ -162,8 +162,8 @@ class Shell < DelegateClass(::Net::SSH)
     sftp.download! rem_file, loc_file
   end
 
-  def discover cmd, rx_pairs
-    return rx_pairs.match_lines( self.exec!(cmd).split("\n") ) do
+  def discover cmd, lookup
+    return lookup.match_lines( self.exec!(cmd).split("\n") ) do
       raise RemoteCommandError, 'SSH Discovery Output Not Matched'
     end
   end

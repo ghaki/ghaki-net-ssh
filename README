@@ -6,7 +6,7 @@ Ghaki Net SSH is a collection of extensions for the Net SSH gem library.
 
 The latest version of Ghaki Net SSH can be found at
 
-* git:/home/ghaki/git-archive/ghaki-net-ssh.git
+* git@github.com:ghaki/ghaki-net-ssh.git
 
 == Installation
 
