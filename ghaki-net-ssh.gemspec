@@ -21,7 +21,6 @@ Gem::Specification.new do |s|
   s.add_dependency 'ghaki-ext-file', '>= 2011.11.29.1'
   s.add_dependency 'ghaki-logger',   '>= 2011.11.29.1'
 
-  s.add_dependency 'highline',        '>= 1.6.1'
   s.add_dependency 'net-ssh',         '>= 2.2.1'
   s.add_dependency 'net-ssh-telnet',  '>= 0.0.2'
   s.add_dependency 'net-sftp',        '>= 2.0.5'
